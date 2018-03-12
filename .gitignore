@@ -1,0 +1,16 @@
+# Created by .ignore support plugin (hsz.mobi)
+# IntelliJ project files
+/.idea
+*.iml
+/target
+/logs
+/src/main/sencha/csv-parser/*.log
+/src/main/sencha/build
+/src/main/sencha/bootstrap.css
+/src/main/sencha/bootstrap.js
+/src/main/sencha/classic.json
+/src/main/sencha/classic.jsonp
+/src/main/sencha/sass/example/bootstrap.js
+/src/main/sencha/sass/example/bootstrap.json
+/src/main/sencha/sass/example/bootstrap.jsonp
+/src/main/sencha/sass/example/example.css

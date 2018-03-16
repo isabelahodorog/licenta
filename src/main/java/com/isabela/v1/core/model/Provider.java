@@ -2,9 +2,9 @@ package com.isabela.v1.core.model;
 
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.data.annotation.Id;
 
 import javax.persistence.*;
+import javax.persistence.Id;
 
 @Data
 @Builder
@@ -29,14 +29,11 @@ public class Provider {
     @Column(name = "p_fiscal_code")
     private String fiscalCode;
 
-    @Column(name = "p_analitical_code")
-    private String analiticalCode;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "p_a_id")
     private Address address;
 
-    @Column(name = "p_a_id")
+    @Column(name = "p_a_id", insertable = false, updatable = false)
     private Long addressId;
 
     @Column(name = "p_bank_account")

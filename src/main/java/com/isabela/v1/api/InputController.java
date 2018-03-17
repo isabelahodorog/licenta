@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.Date;
+import java.util.List;
 
 @Api(value = "Input")
 @RestController
@@ -99,6 +100,44 @@ public class InputController {
         Input input = inputService.createInput(in);
 
         return new InputDto(input.getType(), input.getId(), input.getDocNo(), input.getProviderId(), input.getProvider().getName(), input.getReleaseDate(), input.getDueDate(), input.getValue(), input.getTva(), input.getTotal(), input.getToPay());
+    }
+
+    @RequestMapping(value = "/get_input",
+                    method = RequestMethod.GET,
+                    produces = "application/json")
+    @ApiOperation(value = "Input",
+                    tags = "get",
+                    response = InputDto.class)
+    public List<InputDto> getInputForReleaseDate(@RequestParam(required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date startDate,
+                                                 @RequestParam(required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date endDate,
+                                                 @RequestParam(required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dueDate,
+                                                 @RequestParam(required = false) String providerName) {
+
+        providerName = org.apache.commons.lang.StringUtils.trimToNull(providerName);
+
+        if (dueDate == null && providerName == null) {
+            return inputService.getInputBetween(startDate, endDate);
+        }
+
+        if (dueDate == null && providerName != null) {
+            return inputService.getInputByProviderAndReleaseDates(providerName, startDate, endDate);
+        }
+
+        if (dueDate != null && providerName != null) {
+            return inputService.getInputForProviderAndBefore(providerName, dueDate);
+        }
+
+        return null;
+    }
+
+    @RequestMapping(value = "/get_single_input",
+            method = RequestMethod.GET,
+            produces = "application/json")
+    @ApiOperation(value = "Single Input",
+            tags = "get",
+            response = InputDto.class)
+    public InputDto getSingleInputFor(@RequestParam Long docNo) {
+        return inputService.getInputFor(docNo);
     }
 
 }

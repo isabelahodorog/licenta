@@ -14,13 +14,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.Date;
-import java.util.List;
 
 @Api(value = "Input")
 @RestController
@@ -107,24 +109,26 @@ public class InputController {
                     produces = "application/json")
     @ApiOperation(value = "Input",
                     tags = "get",
-                    response = InputDto.class)
-    public List<InputDto> getInputForReleaseDate(@RequestParam(required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date startDate,
+                    response = Page.class)
+    @ApiResponse(code = 200, message = "Success")
+    public Page<InputDto> getInputForReleaseDate(@RequestParam(required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date startDate,
                                                  @RequestParam(required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date endDate,
                                                  @RequestParam(required = false) @DateTimeFormat(pattern = "dd.MM.yyyy") Date dueDate,
-                                                 @RequestParam(required = false) String providerName) {
+                                                 @RequestParam(required = false) String providerName,
+                                                 @PageableDefault(page = 0, size = 100) Pageable pageable) {
 
         providerName = org.apache.commons.lang.StringUtils.trimToNull(providerName);
 
         if (dueDate == null && providerName == null) {
-            return inputService.getInputBetween(startDate, endDate);
+            return inputService.getInputBetween(startDate, endDate, pageable);
         }
 
         if (dueDate == null && providerName != null) {
-            return inputService.getInputByProviderAndReleaseDates(providerName, startDate, endDate);
+            return inputService.getInputByProviderAndReleaseDates(providerName, startDate, endDate, pageable);
         }
 
-        if (dueDate != null && providerName != null) {
-            return inputService.getInputForProviderAndBefore(providerName, dueDate);
+        if ((dueDate != null && providerName != null) || dueDate != null) {
+            return inputService.getInputForProviderAndBefore(providerName, dueDate, pageable);
         }
 
         return null;
@@ -136,8 +140,33 @@ public class InputController {
     @ApiOperation(value = "Single Input",
             tags = "get",
             response = InputDto.class)
+    @ApiResponse(code = 200, message = "Success")
     public InputDto getSingleInputFor(@RequestParam Long docNo) {
         return inputService.getInputFor(docNo);
     }
 
+    @RequestMapping(value = "/get_single_provider",
+            method = RequestMethod.GET,
+            produces = "application/json")
+    @ApiOperation(value = "Single Provider",
+            tags = "get",
+            response = ProviderDto.class)
+    @ApiResponse(code = 200, message = "Success")
+    public ProviderDto getSingleProviderFor(@RequestParam Long id,
+                                            @RequestParam String name) {
+
+        name = org.apache.commons.lang.StringUtils.trimToNull(name);
+        return providerService.getProviderWith(name, id);
+    }
+
+    @RequestMapping(value = "/get_provider",
+                    method = RequestMethod.GET,
+                    produces = "application/json")
+    @ApiOperation(value = "Get Providers",
+            tags = "get",
+            response = Page.class)
+    @ApiResponse(code = 200, message = "Success")
+    public Page<ProviderDto> getProvider(@PageableDefault(page = 0, size = 100) Pageable pageable){
+        return providerService.getProvider(pageable);
+    }
 }

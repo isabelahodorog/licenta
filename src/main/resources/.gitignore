@@ -1,9 +1,0 @@
-/build
-bootstrap.*
-classic.json*
-modern.json*
-.sencha
-/sass/example/bootstrap.js
-/sass/example/bootstrap.json
-/sass/example/bootstrap.jsonp
-/sass/example/example.css

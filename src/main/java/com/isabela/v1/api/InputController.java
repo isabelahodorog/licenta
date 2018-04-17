@@ -1,6 +1,5 @@
 package com.isabela.v1.api;
 
-import com.isabela.v1.api.request.ProviderRequest;
 import com.isabela.v1.core.dto.InputDto;
 import com.isabela.v1.core.dto.ProviderDto;
 import com.isabela.v1.core.model.Address;
@@ -18,7 +17,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -48,13 +50,18 @@ public class InputController {
                     tags = "add",
                     response = ProviderDto.class)
     @ApiResponse(code = 200, message = "Success")
-    public ProviderDto addProvider(@RequestBody ProviderRequest request){
+    public ProviderDto addProvider(@RequestParam String name,
+                                   @RequestParam String fiscalCode,
+                                   @RequestParam String country,
+                                   @RequestParam String county,
+                                   @RequestParam String address,
+                                   @RequestParam String bankAccount){
 
-        Address address = addressService.createAddress(request.getCountry(), request.getCounty(), request.getAddress());
+        Address address1 = addressService.createAddress(country, county, address);
 
-        Provider provider = providerService.createProvider(request.getName(), request.getFiscalCode(), address, request.getBankAccount());
+        Provider provider = providerService.createProvider(name, fiscalCode, address1, bankAccount);
 
-        return new ProviderDto(provider.getId(), provider.getName(), provider.getFiscalCode(), address.getCountry(), address.getCounty(), address.getAddress(), provider.getBankAccount());
+        return new ProviderDto(provider.getId(), provider.getName(), provider.getFiscalCode(), address1.getCountry(), address1.getCounty(), address1.getAddress(), provider.getBankAccount());
     }
 
     @RequestMapping(value = "/in",
@@ -119,19 +126,7 @@ public class InputController {
 
         providerName = org.apache.commons.lang.StringUtils.trimToNull(providerName);
 
-        if (dueDate == null && providerName == null) {
-            return inputService.getInputBetween(startDate, endDate, pageable);
-        }
-
-        if (dueDate == null && providerName != null) {
-            return inputService.getInputByProviderAndReleaseDates(providerName, startDate, endDate, pageable);
-        }
-
-        if ((dueDate != null && providerName != null) || dueDate != null) {
-            return inputService.getInputForProviderAndBefore(providerName, dueDate, pageable);
-        }
-
-        return null;
+        return inputService.searchInputBy(providerName, startDate, endDate, dueDate, pageable);
     }
 
     @RequestMapping(value = "/get_single_input",
@@ -152,8 +147,8 @@ public class InputController {
             tags = "get",
             response = ProviderDto.class)
     @ApiResponse(code = 200, message = "Success")
-    public ProviderDto getSingleProviderFor(@RequestParam Long id,
-                                            @RequestParam String name) {
+    public ProviderDto getSingleProviderFor(@RequestParam(required = false) Long id,
+                                            @RequestParam(required = false) String name) {
 
         name = org.apache.commons.lang.StringUtils.trimToNull(name);
         return providerService.getProviderWith(name, id);

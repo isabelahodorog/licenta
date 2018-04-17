@@ -2,7 +2,9 @@ package com.isabela.v1.service;
 
 import com.isabela.v1.core.dto.InputDto;
 import com.isabela.v1.core.model.Input;
+import com.isabela.v1.core.model.Provider;
 import com.isabela.v1.core.repository.InputRepository;
+import com.isabela.v1.core.repository.InputSpecification;
 import com.isabela.v1.core.repository.ProviderRepository;
 import com.isabela.v1.core.transformer.InputTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static org.springframework.data.jpa.domain.Specifications.where;
 
 @Component
 @Service
@@ -113,22 +117,27 @@ public class InputService {
         return inputDtoPage;
     }
 
-    public Page<InputDto> getInputByProviderAndReleaseDates(String name, Date startDate, Date endDate, Pageable pageable) {
+    public Page<InputDto> searchInputBy(String name, Date startDate, Date endDate, Date dueDate, Pageable pageable) {
 
         Pageable currentPage = pageable.previousOrFirst();
-        List<Input> input = new ArrayList<>();
+        List<Input> inputList = new ArrayList<>();
 
-        if (startDate == null) {
-            input = inputRepository.findAllByProviderIdAndReleaseDateAfter(providerRepository.findByName(name).getId(), startDate);
-        } else {
-            input = inputRepository.findAllByProviderIdAndReleaseDateBetween(providerRepository.findByName(name).getId(), startDate, endDate);
+        Provider provider = new Provider();
+        if (name != null) {
+            providerRepository.findByName(name);
         }
+
+        inputList = inputRepository.findAll(
+                where(
+                        InputSpecification.searchBy(provider.getId(), startDate, endDate, dueDate)
+                )
+        );
 
         List<InputDto> inputDtos = new ArrayList<>();
 
         InputTransformer transformer = new InputTransformer();
 
-        for (Input in : input) {
+        for (Input in : inputList) {
             InputDto inputDto = transformer.transform(in);
             inputDtos.add(inputDto);
         }

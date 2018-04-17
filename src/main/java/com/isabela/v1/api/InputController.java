@@ -28,7 +28,7 @@ import java.util.Date;
 
 @Api(value = "Input")
 @RestController
-@RequestMapping("/input/v1")
+@RequestMapping("licenta/v1/input")
 public class InputController {
 
     @Resource

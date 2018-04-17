@@ -1,5 +1,6 @@
 package com.isabela.v1.core.model;
 
+import com.isabela.v1.core.validator.Email;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -25,6 +26,7 @@ public class AccountOwner {
     @Column(name = "ao_name")
     private String name;
 
+    @Email
     @Column(name = "ao_email")
     private String email;
 

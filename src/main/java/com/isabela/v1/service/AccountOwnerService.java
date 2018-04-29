@@ -1,5 +1,6 @@
 package com.isabela.v1.service;
 
+import com.isabela.exception.EntityAlreadyExistsException;
 import com.isabela.exception.IncorrectDataException;
 import com.isabela.v1.core.model.AccountOwner;
 import com.isabela.v1.core.repository.AccountOwnerRepository;
@@ -23,6 +24,9 @@ public class AccountOwnerService {
 
     public AccountOwner createOwner(String name, String email, String password){
 
+        if(accountOwnerRepository.findByEmail(email) != null) {
+            throw new EntityAlreadyExistsException("User with email " + email + " already registered");
+        }
         AccountOwner accountOwner = new AccountOwner();
         accountOwner.setName(name);
         accountOwner.setEmail(email);

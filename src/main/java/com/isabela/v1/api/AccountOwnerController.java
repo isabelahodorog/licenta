@@ -1,5 +1,7 @@
 package com.isabela.v1.api;
 
+import com.isabela.exception.IncorrectDataException;
+import com.isabela.exception.InvalidEmailException;
 import com.isabela.v1.core.dto.ProviderDto;
 import com.isabela.v1.core.model.AccountOwner;
 import com.isabela.v1.service.AccountOwnerService;
@@ -39,10 +41,14 @@ public class AccountOwnerController {
         password = StringUtils.trimToNull(password);
         confirmPassword = StringUtils.trimToNull(confirmPassword);
 
+        if(!email.matches(".+@.+\\..+")) {
+            throw new InvalidEmailException("Email is incorrect!");
+        }
+
         if (password.equals(confirmPassword)){
             return accountOwnerService.createOwner(name, email, password);
         } else {
-            throw new Exception("Passwords don't match!");
+            throw new IncorrectDataException("Passwords don't match!");
         }
     }
 

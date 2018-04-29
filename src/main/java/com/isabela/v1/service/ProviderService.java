@@ -24,6 +24,15 @@ public class ProviderService {
     @Autowired
     private ProviderRepository providerRepository;
 
+    /**
+     * Create a new provider
+     *
+     * @param name
+     * @param fiscalCode
+     * @param address
+     * @param bankAccount
+     * @return
+     */
     public Provider createProvider(String name, String fiscalCode, Address address, String bankAccount) {
 
         Provider provider = new Provider();
@@ -36,6 +45,13 @@ public class ProviderService {
         return provider;
     }
 
+    /**
+     * Get provider by name or id
+     *
+     * @param name
+     * @param id
+     * @return
+     */
     public ProviderDto getProviderWith(String name, Long id) {
 
         Provider provider = new Provider();
@@ -51,11 +67,19 @@ public class ProviderService {
         return transformer.transform(provider);
     }
 
+    /**
+     * Get all providers
+     *
+     * @param pageable
+     * @return
+     */
     public Page<ProviderDto> getProvider(Pageable pageable) {
 
+        //start count of pages at 1
         Pageable currentPage = pageable.previousOrFirst();
 
-        List<Provider> providers = providerRepository.findAll();
+        Page<Provider> providers = providerRepository.findAll(currentPage);
+        List<Provider> providerList = providers.getContent();
         List<ProviderDto> providerDtos = new ArrayList<>();
         ProviderTransformer transformer = new ProviderTransformer();
 
@@ -63,9 +87,6 @@ public class ProviderService {
             providerDtos.add(transformer.transform(provider));
         }
 
-        int start = currentPage.getOffset();
-        int end = (start + currentPage.getPageSize()) > providerDtos.size() ? providerDtos.size() : (start + currentPage.getPageSize());
-        Page<ProviderDto> pages = new PageImpl<ProviderDto>(providerDtos.subList(start, end), currentPage, providerDtos.size());
-        return pages;
+        return new PageImpl<ProviderDto>(providerDtos);
     }
 }

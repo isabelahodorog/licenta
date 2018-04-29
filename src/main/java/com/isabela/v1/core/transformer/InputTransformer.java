@@ -5,7 +5,12 @@ import com.isabela.v1.core.model.Input;
 import org.apache.commons.collections4.Transformer;
 
 public class InputTransformer implements Transformer<Input, InputDto> {
-
+    /**
+     * transforms class Input into dto of type InputDto
+     *
+     * @param in
+     * @return
+     */
     public InputDto transform(Input in) {
         InputDto out = new InputDto();
 

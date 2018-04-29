@@ -5,7 +5,7 @@ import javax.validation.Payload;
 import javax.validation.ReportAsSingleViolation;
 import javax.validation.constraints.Pattern;
 import java.lang.annotation.*;
-
+//validate if string is an email
 @org.hibernate.validator.constraints.Email
 @Pattern(regexp = ".+@.+\\..+")
 @ReportAsSingleViolation

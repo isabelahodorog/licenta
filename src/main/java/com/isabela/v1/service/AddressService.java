@@ -16,6 +16,14 @@ public class AddressService {
     @Autowired
     private AddressRepository addressRepository;
 
+    /**
+     * Add a new address
+     *
+     * @param country
+     * @param county
+     * @param address
+     * @return
+     */
     public Address createAddress(String country, String county, String address) {
 
         Address newAddress = new Address();

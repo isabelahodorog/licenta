@@ -12,7 +12,15 @@ import java.util.Date;
 import java.util.List;
 
 public final class InputSpecification {
-
+    /**
+     * This method specifies which parameter will be used when querying the database
+     *
+     * @param providerId
+     * @param startDate
+     * @param endDate
+     * @param dueDate
+     * @return
+     */
     public static Specification<Input> searchBy(final Long providerId, final Date startDate, final Date endDate, final Date dueDate){
         return new Specification<Input>() {
             @Override

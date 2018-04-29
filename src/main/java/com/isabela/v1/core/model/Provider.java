@@ -29,7 +29,7 @@ public class Provider {
     @Column(name = "p_fiscal_code")
     private String fiscalCode;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY) //foreign key to table ADDRESS
     @JoinColumn(name = "p_a_id")
     private Address address;
 

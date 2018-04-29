@@ -32,6 +32,12 @@ public class InputService {
     @Autowired
     private ProviderRepository providerRepository;
 
+    /**
+     * add new Input entries in the database
+     *
+     * @param in
+     * @return
+     */
     public Input createInput(InputDto in) {
 
         Input input = new Input();
@@ -50,35 +56,12 @@ public class InputService {
         return input;
     }
 
-    public Page<InputDto> getInputBetween(Date startDate, Date endDate, Pageable pageable) {
-
-        Pageable currentPage = pageable.previousOrFirst();
-
-        List<Input> input = new ArrayList<>();
-
-        if (startDate == null && endDate == null) {
-            input = inputRepository.findAll();
-        } else if (endDate == null) {
-            input = inputRepository.findAllByReleaseDateAfter(startDate);
-        } else {
-            input = inputRepository.findAllByReleaseDateBetween(startDate, endDate);
-        }
-
-        List<InputDto> inputDtos = new ArrayList<>();
-
-        InputTransformer transformer = new InputTransformer();
-
-        for (Input in : input) {
-            InputDto inputDto = transformer.transform(in);
-            inputDtos.add(inputDto);
-        }
-
-        int start = currentPage.getOffset();
-        int end = (start + currentPage.getPageSize() > inputDtos.size()? inputDtos.size() : currentPage.getPageSize());
-        Page<InputDto> inputDtoPage = new PageImpl<InputDto>(inputDtos.subList(start, end), currentPage, inputDtos.size());
-        return inputDtoPage;
-    }
-
+    /**
+     * Get input from bd by docNo
+     *
+     * @param docNo
+     * @return
+     */
     public InputDto getInputFor(Long docNo) {
         Input in = new Input();
 
@@ -89,49 +72,32 @@ public class InputService {
         return transformer.transform(in);
     }
 
-    public Page<InputDto> getInputForProviderAndBefore(String name, Date dueDate, Pageable pageable) {
-
-        Pageable currentPage = pageable.previousOrFirst();
-        List<Input> input = new ArrayList<>();
-
-        if (dueDate != null && name != null) {
-            input = inputRepository.findAllByProviderIdAndDueDateBefore(providerRepository.findByName(name).getId(), dueDate);
-        } else if (name == null){
-            input = inputRepository.findAllByDueDateBefore(dueDate);
-        } else {
-            input = inputRepository.findAllByProviderId(providerRepository.findByName(name).getId());
-        }
-
-        List<InputDto> inputDtos = new ArrayList<>();
-
-        InputTransformer transformer = new InputTransformer();
-
-        for (Input in : input) {
-            InputDto inputDto = transformer.transform(in);
-            inputDtos.add(inputDto);
-        }
-
-        int start = currentPage.getOffset();
-        int end = (start + currentPage.getPageSize() > inputDtos.size()? inputDtos.size() : currentPage.getPageSize());
-        Page<InputDto> inputDtoPage = new PageImpl<InputDto>(inputDtos.subList(start, end), currentPage, inputDtos.size());
-        return inputDtoPage;
-    }
-
+    /**
+     * Get Input info by specifications selected by user
+     *
+     * @param name
+     * @param startDate
+     * @param endDate
+     * @param dueDate
+     * @param pageable
+     * @return
+     */
     public Page<InputDto> searchInputBy(String name, Date startDate, Date endDate, Date dueDate, Pageable pageable) {
 
         Pageable currentPage = pageable.previousOrFirst();
-        List<Input> inputList = new ArrayList<>();
 
         Provider provider = new Provider();
         if (name != null) {
             providerRepository.findByName(name);
         }
 
-        inputList = inputRepository.findAll(
+        Page<Input> inputPage = inputRepository.findAll(
                 where(
                         InputSpecification.searchBy(provider.getId(), startDate, endDate, dueDate)
-                )
+                ), currentPage
         );
+
+        List<Input> inputList = inputPage.getContent();
 
         List<InputDto> inputDtos = new ArrayList<>();
 
@@ -141,10 +107,7 @@ public class InputService {
             InputDto inputDto = transformer.transform(in);
             inputDtos.add(inputDto);
         }
-
-        int start = currentPage.getOffset();
-        int end = (start + currentPage.getPageSize() > inputDtos.size()? inputDtos.size() : currentPage.getPageSize());
-        Page<InputDto> inputDtoPage = new PageImpl<InputDto>(inputDtos.subList(start, end), currentPage, inputDtos.size());
-        return inputDtoPage;
+        
+        return new PageImpl<InputDto>(inputDtos, currentPage, inputDtos.size());
     }
 }

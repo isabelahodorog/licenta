@@ -22,6 +22,14 @@ public class AccountOwnerService {
 
     private static final String SALT = "hard-to-crack";
 
+    /**
+     * Creates a new entity of type AccountOwner
+     *
+     * @param name
+     * @param email
+     * @param password
+     * @return
+     */
     public AccountOwner createOwner(String name, String email, String password){
 
         if(accountOwnerRepository.findByEmail(email) != null) {
@@ -31,6 +39,7 @@ public class AccountOwnerService {
         accountOwner.setName(name);
         accountOwner.setEmail(email);
 
+        //encript the password ad only after save it into database
         String saltedPassword = SALT + password;
         String hashedPassword = generateHash(saltedPassword);
         accountOwner.setPassword(hashedPassword);
@@ -39,8 +48,16 @@ public class AccountOwnerService {
         return accountOwner;
     }
 
+    /**
+     * Checks the credentials of a user
+     *
+     * @param email
+     * @param password
+     * @return
+     */
     public Boolean login(String email, String password) {
 
+        //encript the password entered by the user to match it with the password stored in the database
         String saltedPassword = SALT + password;
         String hashedPassword = generateHash(saltedPassword);
 
@@ -48,6 +65,7 @@ public class AccountOwnerService {
         if (accountOwner == null) {
             throw new IncorrectDataException("Account with email " + email + " does not exist!");
         }
+
         if (hashedPassword.equals(accountOwner.getPassword())) {
             return true;
         } else {
@@ -56,6 +74,13 @@ public class AccountOwnerService {
 
     }
 
+    /**
+     * Generates a hash of the concatenation of the password and the SALT
+     * Used as an encription of the password
+     *
+     * @param input
+     * @return
+     */
     private static String generateHash(String input) {
         StringBuilder hash = new StringBuilder();
 

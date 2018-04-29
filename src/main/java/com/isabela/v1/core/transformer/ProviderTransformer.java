@@ -6,6 +6,12 @@ import org.apache.commons.collections4.Transformer;
 
 public class ProviderTransformer implements Transformer<Provider, ProviderDto> {
 
+    /**
+     * Transforms class of type Provider into dto of type ProviderDto
+     *
+     * @param in
+     * @return
+     */
     public ProviderDto transform(Provider in) {
         ProviderDto out = new ProviderDto();
 

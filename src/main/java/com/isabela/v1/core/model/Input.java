@@ -29,7 +29,7 @@ public class Input {
     @Column(name = "i_doc_no")
     private Long docNo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)      //foreign key to table PROVIDER
     @JoinColumn(name = "i_p_id")
     private Provider provider;
 
